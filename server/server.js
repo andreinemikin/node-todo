@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.post('/todos', (req, res) => {
     var todo = new Todo({
         text: req.body.text
-    })
+    });
 
     todo.save().then((doc) => {
         res.send(doc);
@@ -24,3 +24,5 @@ app.post('/todos', (req, res) => {
 app.listen(3000, () => {
     console.log('Start on port 3000');
 });
+
+module.exports = {app};
