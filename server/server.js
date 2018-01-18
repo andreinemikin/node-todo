@@ -7,6 +7,7 @@ const {ObjectID} = require('mongodb');
 let {mongoose} = new require('./db/mongoose');
 let {Todo} = new require('./models/todo');
 let {User} = new require('./models/user');
+let {authenticate} = require('./midlwear/authenticate');
 
 let app = express();
 const port = process.env.PORT;
@@ -36,12 +37,12 @@ app.get('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
     let id = req.params.id;
 
-    if(!ObjectID.isValid(id)) {
+    if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
     Todo.findById(id).then((todo) => {
-        if(!todo) {
+        if (!todo) {
             return res.status(404).send();
         }
         res.send({todo});
@@ -53,12 +54,12 @@ app.get('/todos/:id', (req, res) => {
 app.delete('/todos/:id', (req, res) => {
     let id = req.params.id;
 
-    if(!ObjectID.isValid(id)) {
+    if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
     Todo.findByIdAndRemove(id).then((todo) => {
-        if(!todo) {
+        if (!todo) {
             return res.status(404).send();
         }
         res.send({todo});
@@ -71,11 +72,11 @@ app.patch('/todos/:id', (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['text', 'completed']);
 
-    if(!ObjectID.isValid(id)) {
+    if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
-    if(_.isBoolean(body.completed) && body.completed) {
+    if (_.isBoolean(body.completed) && body.completed) {
         body.completedAt = new Date().getTime();
     } else {
         body.completed = false;
@@ -87,7 +88,7 @@ app.patch('/todos/:id', (req, res) => {
     }, {
         new: true
     }).then((todo) => {
-        if(!todo) {
+        if (!todo) {
             return res.status(404).send();
         }
         res.send({todo});
@@ -108,6 +109,11 @@ app.post('/users', (req, res) => {
         res.status(400).send(error)
     })
 
+});
+
+
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
 });
 
 app.listen(port, () => {
