@@ -3,6 +3,7 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const corse = require('cors');
 
 let {mongoose} = new require('./db/mongoose');
 let {Todo} = new require('./models/todo');
@@ -10,6 +11,11 @@ let {User} = new require('./models/user');
 let {authenticate} = new require('./midlwear/authenticate');
 
 let app = express();
+
+app.use(corse({
+    exposedHeaders:  'x-auth'
+}));
+
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
@@ -125,7 +131,7 @@ app.post('/users/login', (req, res) => {
             res.header('x-auth', token).send(user);
         })
     }).catch((error) => {
-        res.status(400).send();
+        res.status(400).send(error);
     })
 });
 
